@@ -3,111 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menards Quote Calculator</title>
+<title>Menards Tools</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-  .card { background: #fff; border-radius: 16px; width: 100%; max-width: 420px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
-  .header { background: #009b3a; color: white; padding: 24px 28px 20px; }
-  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
-  .header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
-  .body { padding: 24px 28px; }
-  .input-group { margin-bottom: 16px; }
-  .input-group label { display: block; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-  .input-row { display: flex; align-items: center; border: 2px solid #e0e0e0; border-radius: 10px; overflow: hidden; transition: border-color 0.2s; }
-  .input-row:focus-within { border-color: #009b3a; }
-  .input-row span { padding: 0 12px; font-size: 16px; color: #777; background: #f9f9f9; height: 46px; display: flex; align-items: center; border-right: 2px solid #e0e0e0; }
-  .input-row input { border: none; outline: none; padding: 0 14px; font-size: 16px; height: 46px; width: 100%; color: #222; }
-  .calc-btn { width: 100%; background: #009b3a; color: white; border: none; border-radius: 10px; padding: 14px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: background 0.2s; letter-spacing: 0.5px; }
-  .calc-btn:hover { background: #007d2f; }
-  .results { margin-top: 24px; border-top: 2px solid #f0f0f0; padding-top: 20px; display: none; }
-  .results.visible { display: block; }
-  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: 15px; color: #333; border-bottom: 1px solid #f5f5f5; }
-  .result-row .label { color: #666; }
-  .result-row .value { font-weight: 600; }
-  .result-row.due { padding: 14px 0 10px; border-bottom: 2px solid #e0e0e0; }
-  .result-row.due .label { font-size: 16px; font-weight: 700; color: #222; }
-  .result-row.due .value { font-size: 20px; font-weight: 800; color: #009b3a; }
-  .rebate-box { background: #f0faf4; border: 2px solid #009b3a; border-radius: 12px; padding: 16px; margin-top: 16px; text-align: center; }
-  .rebate-box .rebate-label { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #009b3a; letter-spacing: 0.5px; }
-  .rebate-box .rebate-amount { font-size: 15px; color: #444; margin: 6px 0 2px; }
-  .rebate-box .rebate-amount span { font-weight: 700; color: #d32f2f; }
-  .rebate-box .after-rebate { font-size: 22px; font-weight: 800; color: #009b3a; margin-top: 4px; }
-  .rebate-box .after-label { font-size: 12px; color: #777; margin-top: 2px; }
-  .reset-btn { width: 100%; background: none; border: 2px solid #e0e0e0; border-radius: 10px; padding: 10px; font-size: 14px; color: #888; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
-  .reset-btn:hover { border-color: #bbb; color: #555; }
-  .top-nav {
-    text-align: center;
-    margin-bottom: 18px;
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
   }
-  .top-nav a {
-    color: #aaa;
+  .logo { text-align: center; margin-bottom: 40px; }
+  .logo h1 { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+  .logo p { font-size: 14px; color: #888; margin-top: 6px; }
+  .tools {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 700px;
+    width: 100%;
+  }
+  .tool-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 32px 28px;
+    flex: 1;
+    min-width: 260px;
+    max-width: 320px;
     text-decoration: none;
-    font-size: 13px;
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 5px 14px;
-    transition: all 0.2s;
+    color: inherit;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-  .top-nav a:hover { color: #fff; border-color: #777; }
+  .tool-card:hover { transform: translateY(-4px); box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+  .tool-icon { font-size: 32px; margin-bottom: 4px; }
+  .tool-card h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+  .tool-card p { font-size: 13px; color: #666; line-height: 1.5; }
+  .tool-badge {
+    display: inline-block;
+    margin-top: 8px;
+    background: #009b3a;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    align-self: flex-start;
+  }
 </style>
 </head>
 <body>
-
-<div class="top-nav">
-  <a href="bidroom.html">Bidroom Estimating Tool →</a>
+<div class="logo">
+  <h1>Menards Tools</h1>
+  <p>Select a tool to get started</p>
 </div>
-<div class="card">
-  <div class="header">
-    <h1>Menards Quote Calculator</h1>
-    <p>Enter subtotal &amp; delivery — we handle the rest</p>
-  </div>
-  <div class="body">
-    <div class="input-group">
-      <label>Subtotal</label>
-      <div class="input-row"><span>$</span><input type="number" id="subtotal" placeholder="0.00" min="0" step="0.01"></div>
-    </div>
-    <div class="input-group">
-      <label>Delivery (if any)</label>
-      <div class="input-row"><span>$</span><input type="number" id="delivery" placeholder="0.00" min="0" step="0.01"></div>
-    </div>
-    <button class="calc-btn" onclick="calculate()">Calculate Quote</button>
-    <div class="results" id="results">
-      <div class="result-row"><span class="label">Subtotal</span><span class="value" id="r-subtotal">—</span></div>
-      <div class="result-row"><span class="label">Tax (10%)</span><span class="value" id="r-tax">—</span></div>
-      <div class="result-row"><span class="label">Delivery</span><span class="value" id="r-delivery">—</span></div>
-      <div class="result-row due"><span class="label">Due Today</span><span class="value" id="r-due">—</span></div>
-      <div class="rebate-box">
-        <div class="rebate-label">11% Menards Rebate</div>
-        <div class="rebate-amount">Rebate: <span id="r-rebate">—</span></div>
-        <div class="after-rebate" id="r-after">—</div>
-        <div class="after-label">After 11% Rebate</div>
-      </div>
-      <button class="reset-btn" onclick="reset()">Clear &amp; Start Over</button>
-    </div>
-  </div>
+<div class="tools">
+  <a class="tool-card" href="calculator.html">
+    <div class="tool-icon">&#x1F9EE;</div>
+    <h2>Quote Calculator</h2>
+    <p>Enter subtotal and delivery to calculate tax, rebate, and total due.</p>
+    <span class="tool-badge">Open &rarr;</span>
+  </a>
+  <a class="tool-card" href="bidroom.html">
+    <div class="tool-icon">&#x1F4CB;</div>
+    <h2>Bidroom Estimating Tool</h2>
+    <p>Line-item estimating with GMP tracking, smart price reducer, and rebate panel.</p>
+    <span class="tool-badge">Open &rarr;</span>
+  </a>
 </div>
-<script>
-  function fmt(n){return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
-  function calculate(){
-    const subtotal=parseFloat(document.getElementById('subtotal').value)||0;
-    const delivery=parseFloat(document.getElementById('delivery').value)||0;
-    if(subtotal<=0){alert('Please enter a subtotal greater than $0.');return;}
-    const tax=subtotal*0.10,due=subtotal+tax+delivery,rebate=subtotal*0.11,afterRebate=due-rebate;
-    document.getElementById('r-subtotal').textContent=fmt(subtotal);
-    document.getElementById('r-tax').textContent=fmt(tax);
-    document.getElementById('r-delivery').textContent=fmt(delivery);
-    document.getElementById('r-due').textContent=fmt(due);
-    document.getElementById('r-rebate').textContent=fmt(rebate);
-    document.getElementById('r-after').textContent=fmt(afterRebate);
-    document.getElementById('results').classList.add('visible');
-  }
-  function reset(){
-    document.getElementById('subtotal').value='';
-    document.getElementById('delivery').value='';
-    document.getElementById('results').classList.remove('visible');
-  }
-  document.addEventListener('keydown',function(e){if(e.key==='Enter')calculate();});
-</script>
 </body>
 </html>
