@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bidroom Estimating Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #1a1a2e;
+    min-height: 100vh;
+    padding: 20px;
+    color: #222;
+  }
+  .top-nav {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .top-nav a {
+    color: #aaa;
+    text-decoration: none;
+    font-size: 13px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 5px 14px;
+    transition: all 0.2s;
+  }
+  .top-nav a:hover { color: #fff; border-color: #777; }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .header {
+    background: #009b3a;
+    color: white;
+    padding: 24px 28px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .header p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .body { padding: 24px 28px; }
+
+  /* Table */
+  .table-wrap { overflow-x: auto; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 700px; }
+  thead th {
+    background: #f5f5f5;
+    padding: 10px 8px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+    border-bottom: 2px solid #e0e0e0;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-radius: 8px 0 0 0; }
+  thead th:last-child { border-radius: 0 8px 0 0; text-align: center; }
+  tbody tr { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+  tbody tr:hover { background: #fafafa; }
+  tbody td { padding: 7px 8px; vertical-align: middle; }
+
+  /* GMP color rows */
+  tbody tr.gmp-green td.gmp-cell { color: #1b7a1b; font-weight: 700; }
+  tbody tr.gmp-orange td.gmp-cell { color: #c07000; font-weight: 700; }
+  tbody tr.gmp-red td.gmp-cell { color: #c0392b; font-weight: 700; }
+  tbody tr.gmp-green { background: #f0faf2; }
+  tbody tr.gmp-orange { background: #fffbf0; }
+  tbody tr.gmp-red { background: #fff5f5; }
+
+  .input-cell {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 14px;
+    width: 100%;
+    min-width: 70px;
+    color: #222;
+    transition: border-color 0.2s;
+  }
+  .input-cell:focus { outline: none; border-color: #009b3a; }
+  .sku-input { min-width: 90px; }
+  .calc-cell { color: #444; font-weight: 500; white-space: nowrap; }
+  .del-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+    display: block;
+    margin: 0 auto;
+  }
+  .del-btn:hover { color: #e74c3c; }
+
+  /* Buttons row */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .add-btn {
+    background: #009b3a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .add-btn:hover { background: #007d2f; }
+  .clear-btn {
+    background: none;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .clear-btn:hover { border-color: #bbb; color: #555; }
+
+  /* Reducer */
+  .reducer-box {
+    background: #f8f8f8;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+  }
+  .reducer-box h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #555; margin-bottom: 12px; }
+  .reducer-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .reducer-label { font-size: 14px; color: #555; white-space: nowrap; }
+  .reducer-input {
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    width: 140px;
+    transition: border-color 0.2s;
+  }
+  .reducer-input:focus { outline: none; border-color: #009b3a; }
+  .reduce-btn {
+    background: #1a1a2e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .reduce-btn:hover { background: #2e2e50; }
+  .undo-btn {
+    background: none;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .undo-btn:hover { border-color: #bbb; color: #555; }
+  .reducer-msg { font-size: 13px; color: #009b3a; font-weight: 600; margin-top: 6px; display: none; }
+  .reducer-msg.error { color: #c0392b; }
+
+  /* Summary */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
+  .summary-box {
+    border: 2px solid #f0f0f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .summary-box h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #888; margin-bottom: 12px; }
+  .sum-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+  .sum-row:last-child { border-bottom: none; }
+  .sum-row .sl { color: #666; }
+  .sum-row .sv { font-weight: 600; }
+  .sum-row.highlight .sl { font-weight: 700; color: #222; font-size: 15px; }
+  .sum-row.highlight .sv { font-weight: 800; color: #009b3a; font-size: 17px; }
+
+  .rebate-box {
+    background: #f0faf4;
+    border: 2px solid #009b3a;
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .rebate-box h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #009b3a; margin-bottom: 12px; }
+
+  /* GMP legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .dot-green { background: #d4edda; border: 2px solid #1b7a1b; }
+  .dot-orange { background: #fff3cd; border: 2px solid #c07000; }
+  .dot-red { background: #ffe0e0; border: 2px solid #c0392b; }
+</style>
+</head>
+<body>
+
+<div class="top-nav">
+  <a href="index.html">â Menards Quote Calculator</a>
+</div>
+
+<div class="card">
+  <div class="header">
+    <div>
+      <h1>Bidroom Estimating Tool</h1>
+      <p>Enter items â auto-calculates margin, profit &amp; rebate</p>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot dot-green"></div> GMP &gt; 20% (Healthy)</div>
+      <div class="legend-item"><div class="legend-dot dot-orange"></div> GMP 10â20% (Watch)</div>
+      <div class="legend-item"><div class="legend-dot dot-red"></div> GMP &lt; 10% (Low)</div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="table-wrap">
+      <table id="itemTable">
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Retail ($)</th>
+            <th>Cost ($)</th>
+            <th>Qty</th>
+            <th>Discount ($)</th>
+            <th>Total Retail ($)</th>
+            <th>Total Cost ($)</th>
+            <th>Profit ($)</th>
+            <th>GMP %</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+      <button class="add-btn" onclick="addRow()">+ Add Item</button>
+      <button class="clear-btn" onclick="clearAll()">Clear All</button>
+    </div>
+
+    <!-- Smart Reducer -->
+    <div class="reducer-box">
+      <h3>Smart Price Reducer</h3>
+      <div class="reducer-row">
+        <span class="reducer-label">Reduce subtotal by $</span>
+        <input class="reducer-input" type="number" id="reduceTarget" placeholder="e.g. 500" min="0" step="0.01">
+        <span class="reducer-label">GMP floor:</span>
+        <input class="reducer-input" type="number" id="gmpFloor" placeholder="10" min="0" max="100" step="1" value="10" style="width:80px">
+        <span class="reducer-label">%</span>
+        <button class="reduce-btn" onclick="smartReduce()">Reduce Prices</button>
+        <button class="undo-btn" onclick="undoReduce()" id="undoBtn" style="display:none">Undo</button>
+      </div>
+      <div class="reducer-msg" id="reducerMsg"></div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-grid">
+      <div class="summary-box">
+        <h3>Quote Summary</h3>
+        <div class="sum-row"><span class="sl">Total Retail</span><span class="sv" id="s-totalRetail">â</span></div>
+        <div class="sum-row"><span class="sl">Total Cost</span><span class="sv" id="s-totalCost">â</span></div>
+        <div class="sum-row"><span class="sl">Total Profit</span><span class="sv" id="s-totalProfit">â</span></div>
+        <div class="sum-row"><span class="sl">Blended GMP</span><span class="sv" id="s-blendedGMP">â</span></div>
+        <div class="sum-row"><span class="sl">Tax (10%)</span><span class="sv" id="s-tax">â</span></div>
+        <div class="sum-row"><span class="sl">Delivery</span><span class="sv"><input type="number" id="deliveryInput" placeholder="0.00" min="0" step="0.01" style="border:1px solid #ddd;border-radius:5px;padding:3px 7px;font-size:13px;width:90px" oninput="updateSummary()"></span></div>
+        <div class="sum-row highlight"><span class="sl">Due Today</span><span class="sv" id="s-due">â</span></div>
+      </div>
+      <div class="rebate-box">
+        <h3>11% Menards Rebate</h3>
+        <div class="sum-row"><span class="sl">Subtotal (Retail)</span><span class="sv" id="r-subtotal">â</span></div>
+        <div class="sum-row"><span class="sl">Rebate (11%)</span><span class="sv" id="r-rebate" style="color:#c0392b">â</span></div>
+        <div class="sum-row highlight"><span class="sl">After Rebate</span><span class="sv" id="r-after">â</span></div>
+        <div class="sum-row" style="margin-top:8px"><span class="sl" style="font-size:12px;color:#aaa">Rebate applies to retail subtotal only</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let rows = [];
+  let preReduceSnapshot = null;
+
+  function fmt(n) {
+    if (isNaN(n) || n === null) return 'â';
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?Å¹\d))/g, ',');
+  }
+  function fmtPct(n) {
+    if (isNaN(n) || n === null) return 'â';
+    return n.toFixed(1) + '%';
+  }
+
+  function addRow(sku='', retail='', cost='', qty='') {
+    const id = Date.now() + Math.random();
+    rows.push({ id, sku, retail, cost, qty });
+    renderTable();
+    // Focus the new SKU cell
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.sku-input');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  }
+
+  function deleteRow(id) {
+    rows = rows.filter(r => r.id !== id);
+    renderTable();
+  }
+
+  function updateRow(id, field, value) {
+    const row = rows.find(r => r.id === id);
+    if (row) row[field] = value;
+    updateSummary();
+    updateRowColors();
+  }
+
+  function calcRow(row) {
+    const retail = parseFloat(row.retail) || 0;
+    const cost = parseFloat(row.cost) || 0;
+    const qty = parseFloat(row.qty) || 0;
+    const discount = retail - cost;
+    const totalRetail = retail * qty;
+    const totalCost = cost * qty;
+    const profit = (retail - cost) * qty;
+    const gmp = retail > 0 ? ((retail - cost) / retail) * 100 : 0;
+    return { discount, totalRetail, totalCost, profit, gmp };
+  }
+
+  function gmpClass(gmp) {
+    if (gmp > 20) return 'gmp-green';
+    if (gmp >= 10) return 'gmp-orange';
+    return 'gmp-red';
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    rows.forEach(row => {
+      const c = calcRow(row);
+      const cls = gmpClass(c.gmp);
+      const tr = document.createElement('tr');
+      tr.className = cls;
+      tr.dataset.id = row.id;
+      tr.innerHTML = `
+        <td><input class="input-cell sku-input" type="text" placeholder="SKU" value="${row.sku}" onchange="updateRow(${row.id},'sku',this.value)"></td>
+        <td><input class="input-cell" type="number" placeholder="0.00" value="${row.retail}" min="0" step="0.01" oninput="updateRow(${row.id},'retail',this.value);updateRowCalc(this,${row.id})"></td>
+        <td><input class="input-cell" type="number" placeholder="0.00" value="${row.cost}" min="0" step="0.01" oninput="updateRow(${row.id},'cost',this.value);updateRowCalc(this,${row.id})"></td>
+        <td><input class="input-cell" type="number" placeholder="1" value="${row.qty}" min="0" step="1" oninput="updateRow(${row.id},'qty',this.value);updateRowCalc(this,${row.id})"></td>
+        <td class="calc-cell" id="disc-${row.id}">${fmt(c.discount)}</td>
+        <td class="calc-cell" id="tret-${row.id}">${fmt(c.totalRetail)}</td>
+        <td class="calc-cell" id="tcost-${row.id}">${fmt(c.totalCost)}</td>
+        <td class="calc-cell" id="prof-${row.id}">${fmt(c.profit)}</td>
+        <td class="calc-cell gmp-cell" id="gmp-${row.id}">${fmtPct(c.gmp)}</td>
+        <td><button class="del-btn" onclick="deleteRow(${row.id})">Ã</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+    updateSummary();
+  }
+
+  function updateRowCalc(input, id) {
+    const row = rows.find(r => r.id === id);
+    if (!row) return;
+    const c = calcRow(row);
+    const cls = gmpClass(c.gmp);
+    const tr = input.closest('tr');
+    tr.className = cls;
+    document.getElementById('disc-'+id).textContent = fmt(c.discount);
+    document.getElementById('tret-'+id).textContent = fmt(c.totalRetail);
+    document.getElementById('tcost-'+id).textContent = fmt(c.totalCost);
+    document.getElementById('prof-'+id).textContent = fmt(c.profit);
+    document.getElementById('gmp-'+id).textContent = fmtPct(c.gmp);
+    updateSummary();
+  }
+
+  function updateRowColors() {
+    rows.forEach(row => {
+      const c = calcRow(row);
+      const cls = gmpClass(c.gmp);
+      const tr = document.querySelector(`tr[data-id="${row.id}"]`);
+      if (tr) tr.className = cls;
+    });
+  }
+
+  function updateSummary() {
+    let totalRetail = 0, totalCost = 0, totalProfit = 0;
+    rows.forEach(row => {
+      const c = calcRow(row);
+      totalRetail += c.totalRetail;
+      totalCost += c.totalCost;
+      totalProfit += c.profit;
+    });
+    const blendedGMP = totalRetail > 0 ? (totalProfit / totalRetail) * 100 : 0;
+    const tax = totalRetail * 0.10;
+    const delivery = parseFloat(document.getElementById('deliveryInput').value) || 0;
+    const due = totalRetail + tax + delivery;
+    const rebate = totalRetail * 0.11;
+    const afterRebate = due - rebate;
+
+    document.getElementById('s-totalRetail').textContent = fmt(totalRetail);
+    document.getElementById('s-totalCost').textContent = fmt(totalCost);
+    document.getElementById('s-totalProfit').textContent = fmt(totalProfit);
+    document.getElementById('s-blendedGMP').textContent = fmtPct(blendedGMP);
+    document.getElementById('s-tax').textContent = fmt(tax);
+    document.getElementById('s-due').textContent = fmt(due);
+    document.getElementById('r-subtotal').textContent = fmt(totalRetail);
+    document.getElementById("r-rebate").textContent = fmt(rebate);
+    document.getElementById('r-after').textContent = fmt(afterRebate);
+  }
+
+  function smartReduce() {
+    const target = parseFloat(document.getElementById('reduceTarget').value) || 0;
+    const floor = parseFloat(document.getElementById('gmpFloor').value);
+    const gmpFloor = isNaN(floor) ? 10 : floor;
+    const msg = document.getElementById('reducerMsg');
+
+    if (target <= 0) {
+      msg.textContent = 'Please enter a reduction target greater than $0.';
+      msg.className = 'reducer-msg error';
+      msg.style.display = 'block';
+      return;
+    }
+
+    // Save snapshot for undo
+    preReduceSnapshot = rows.map(r => ({ ...r }));
+    document.getElementById('undoBtn').style.display = 'inline-block';
+
+    // Sort eligible items by GMP descending (highest margin = most room to cut)
+    let eligible = rows
+      .filter(r => {
+        const retail = parseFloat(r.retail) || 0;
+        const cost = parseFloat(r.cost) || 0;
+        const qty = parseFloat(r.qty) || 0;
+        if (retail <= 0 || cost <= 0 || qty <= 0) return false;
+        const gmp = ((retail - cost) / retail) * 100;
+        return gmp > gmpFloor;
+      })
+      .sort((a, b) => {
+        const gmpA = ((parseFloat(a.retail) - parseFloat(a.cost)) / parseFloat(a.retail)) * 100;
+        const gmpB = ((parseFloat(b.retail) - parseFloat(b.cost)) / parseFloat(b.retail)) * 100;
+        return gmpB - gmpA;
+      });
+
+    let remaining = target;
+    let totalSaved = 0;
+    let itemsAdjusted = 0;
+
+    for (let i = 0; i < eligible.length && remaining > 0.005; i++) {
+      const row = rows.find(r => r.id === eligible[i].id);
+      if (!row) continue;
+      const retail = parseFloat(row.retail);
+      const cost = parseFloat(row.cost);
+      const qty = parseFloat(row.qty);
+      // Min retail = cost / (1 - gmpFloor/100)
+      const minRetail = cost / (1 - gmpFloor / 100);
+      const maxCutPerUnit = retail - minRetail;
+      const maxCutTotal = maxCutPerUnit * qty;
+      const cut = Math.min(remaining, maxCutTotal);
+      const cutPerUnit = cut / qty;
+      const newRetail = retail - cutPerUnit;
+      row.retail = newRetail.toFixed(2);
+      remaining -= cut;
+      totalSaved += cut;
+      itemsAdjusted++;
+    }
+
+    renderTable();
+
+    if (totalSaved < target - 0.01) {
+      msg.textContent = `Could only reduce by ${fmt(totalSaved)} â GMP floor of ${gmpFloor}% reached on all eligible items.`;
+      msg.className = 'reducer-msg error';
+    } else {
+      msg.textContent = `â Reduced subtotal by ${fmt(totalSaved)} across ${itemsAdjusted} item${itemsAdjusted !== 1 ? 's' : ''}. No item fell below ${gmpFloor}% GMP.`;
+      msg.className = 'reducer-msg';
+    }
+    msg.style.display = 'block';
+  }
+
+  function undoReduce() {
+    if (preReduceSnapshot) {
+      rows = preReduceSnapshot;
+      preReduceSnapshot = null;
+      renderTable();
+      document.getElementById('undoBtn').style.display = 'none';
+      const msg = document.getElementById('reducerMsg');
+      msg.textContent = 'Changes undone.';
+      msg.className = 'reducer-msg';
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 2000);
+    }
+  }
+
+  function clearAll() {
+    if (rows.length > 0 && !confirm('Clear all items?')) return;
+    rows = [];
+    preReduceSnapshot = null;
+    document.getElementById('undoBtn').style.display = 'none';
+    document.getElementById('reducerMsg').style.display = 'none';
+    document.getElementById('deliveryInput').value = '';
+    document.getElementById('reduceTarget').value = '';
+    renderTable();
+  }
+
+  // Start with 3 empty rows
+  AddReow(); addRow(); addRow();
+
+  // Enter key to add row when in last row
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.closest('#itemTable')) {
+      const trs = document.querySelectorAll('#tableBody tr');
+      const lastTr = trs[trs.length - 1];
+      if (e.target.closest('tr') === lastTr) addRow();
+    }
+  });
+</script>
+</body>
+</html>
