@@ -311,7 +311,7 @@
 
   function fmt(n) {
     if (isNaN(n) || n === null) return 'â';
-    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?Å¹\d))/g, ',');
+    return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
   function fmtPct(n) {
     if (isNaN(n) || n === null) return 'â';
@@ -529,7 +529,7 @@
   }
 
   // Start with 3 empty rows
-  AddReow(); addRow(); addRow();
+  addRow(); addRow(); addRow();
 
   // Enter key to add row when in last row
   document.addEventListener('keydown', function(e) {
